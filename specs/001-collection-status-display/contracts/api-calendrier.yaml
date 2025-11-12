@@ -1,0 +1,308 @@
+openapi: 3.0.3
+info:
+  title: Waste Collection Monthly Calendar API
+  description: |
+    API endpoint for retrieving a specific month's waste collection schedule.
+    Returns all collection dates for the requested month with type indicators
+    and public holiday information.
+
+    **User Story**: P2 - View Monthly Collection Calendar
+    **Performance**: < 200ms response time with ISR caching (1 hour)
+    **Timezone**: All dates in Europe/Paris timezone
+  version: 1.0.0
+  contact:
+    name: Municipality Technical Support
+    email: support@pont-sur-yonne.fr
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://collecte-poubelles.vercel.app/api
+    description: Production server (Vercel)
+
+paths:
+  /calendrier/{mois}:
+    get:
+      summary: Get monthly collection calendar
+      description: |
+        Returns all waste collection dates for the specified month in 2025.
+        Includes public holidays that fall on collection days.
+
+        **Caching**: ISR with `revalidate: 3600` (1-hour cache)
+        **Index Used**: `idx_annee_mois` (composite index query)
+        **Year Scope**: 2025 only per Clarification #4 (past/future years return 400)
+      operationId: getMonthlyCalendar
+      tags:
+        - Collections
+      parameters:
+        - name: mois
+          in: path
+          required: true
+          description: Month number (1-12)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          examples:
+            janvier:
+              value: 1
+              summary: January
+            novembre:
+              value: 11
+              summary: November
+        - name: annee
+          in: query
+          required: false
+          description: Year (must be 2025, defaults to 2025 if omitted)
+          schema:
+            type: integer
+            enum: [2025]
+            default: 2025
+      responses:
+        '200':
+          description: Successful response with monthly calendar data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendrierResponse'
+              examples:
+                novemberCalendar:
+                  summary: November 2025 calendar
+                  value:
+                    annee: 2025
+                    mois: 11
+                    collectes:
+                      - id: 244
+                        date: "2025-11-05"
+                        typeCollecte: "gris"
+                        annee: 2025
+                        mois: 11
+                        jour: 5
+                        estFerie: false
+                        description: "Collecte bac gris - Ordures ménagères"
+                      - id: 245
+                        date: "2025-11-12"
+                        typeCollecte: "jaune"
+                        annee: 2025
+                        mois: 11
+                        jour: 12
+                        estFerie: false
+                        description: "Collecte bac jaune - Emballages et papiers"
+                      - id: 246
+                        date: "2025-11-26"
+                        typeCollecte: "jaune"
+                        annee: 2025
+                        mois: 11
+                        jour: 26
+                        estFerie: false
+                        description: "Collecte bac jaune - Emballages et papiers"
+                    joursFeries: []
+                januaryCalendar:
+                  summary: January 2025 with holiday
+                  value:
+                    annee: 2025
+                    mois: 1
+                    collectes:
+                      - id: 1
+                        date: "2025-01-01"
+                        typeCollecte: "gris"
+                        annee: 2025
+                        mois: 1
+                        jour: 1
+                        estFerie: true
+                        description: "Collecte bac gris - Ordures ménagères"
+                      - id: 2
+                        date: "2025-01-08"
+                        typeCollecte: "jaune"
+                        annee: 2025
+                        mois: 1
+                        jour: 8
+                        estFerie: false
+                        description: "Collecte bac jaune - Emballages et papiers"
+                    joursFeries:
+                      - id: 1
+                        date: "2025-01-01"
+                        nom: "Jour de l'an"
+                        annee: 2025
+        '400':
+          description: Invalid month parameter or out-of-range year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidMonth:
+                  summary: Invalid month (13)
+                  value:
+                    error: "Mois invalide"
+                    code: "INVALID_MONTH"
+                    details: "Le mois doit être entre 1 et 12"
+                    timestamp: "2025-11-12T14:30:00Z"
+                invalidYear:
+                  summary: Year out of range
+                  value:
+                    error: "Année invalide"
+                    code: "INVALID_YEAR"
+                    details: "Le calendrier est disponible uniquement pour 2025"
+                    timestamp: "2025-11-12T14:30:00Z"
+        '500':
+          description: Database error or server failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Erreur lors de la récupération du calendrier"
+                code: "DB_CONNECTION_ERROR"
+                timestamp: "2025-11-12T14:30:00Z"
+
+components:
+  schemas:
+    CalendrierResponse:
+      type: object
+      required:
+        - annee
+        - mois
+        - collectes
+        - joursFeries
+      properties:
+        annee:
+          type: integer
+          description: Year of the calendar
+          example: 2025
+        mois:
+          type: integer
+          minimum: 1
+          maximum: 12
+          description: Month number (1-12)
+          example: 11
+        collectes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collecte'
+          description: All collection dates in this month (may be empty)
+        joursFeries:
+          type: array
+          items:
+            $ref: '#/components/schemas/JourFerie'
+          description: Public holidays falling in this month (may be empty)
+
+    Collecte:
+      type: object
+      required:
+        - id
+        - date
+        - typeCollecte
+        - annee
+        - mois
+        - jour
+        - estFerie
+      properties:
+        id:
+          type: integer
+          description: Database primary key
+          example: 245
+        date:
+          type: string
+          format: date
+          description: Collection date in ISO 8601 format (YYYY-MM-DD)
+          example: "2025-11-12"
+        typeCollecte:
+          type: string
+          enum: [jaune, gris, both]
+          description: |
+            Type of waste collection:
+            - `jaune`: Yellow bin (recyclables + newspapers/paper)
+            - `gris`: Grey bin (general waste)
+            - `both`: Both bins collected same day
+          example: "jaune"
+        annee:
+          type: integer
+          minimum: 2025
+          maximum: 2025
+          description: Year (currently 2025 only)
+          example: 2025
+        mois:
+          type: integer
+          minimum: 1
+          maximum: 12
+          description: Month (1-12)
+          example: 11
+        jour:
+          type: integer
+          minimum: 1
+          maximum: 31
+          description: Day of month
+          example: 12
+        estFerie:
+          type: boolean
+          description: True if collection falls on a public holiday
+          example: false
+        description:
+          type: string
+          nullable: true
+          maxLength: 100
+          description: Human-readable collection description in French
+          example: "Collecte bac jaune - Emballages et papiers"
+
+    JourFerie:
+      type: object
+      required:
+        - id
+        - date
+        - nom
+        - annee
+      properties:
+        id:
+          type: integer
+          description: Database primary key
+          example: 1
+        date:
+          type: string
+          format: date
+          description: Holiday date in ISO 8601 format
+          example: "2025-01-01"
+        nom:
+          type: string
+          maxLength: 100
+          description: Holiday name in French
+          example: "Jour de l'an"
+        annee:
+          type: integer
+          description: Year of the holiday
+          example: 2025
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - code
+        - timestamp
+      properties:
+        error:
+          type: string
+          description: Human-readable error message in French
+          example: "Mois invalide"
+        code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - INVALID_MONTH
+            - INVALID_YEAR
+            - DB_CONNECTION_ERROR
+          example: "INVALID_MONTH"
+        details:
+          type: string
+          description: Additional error details
+          example: "Le mois doit être entre 1 et 12"
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of error
+          example: "2025-11-12T14:30:00Z"
+
+  securitySchemes: {}
+
+tags:
+  - name: Collections
+    description: Waste collection schedule endpoints
