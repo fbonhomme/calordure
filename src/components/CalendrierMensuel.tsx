@@ -8,9 +8,8 @@ import {
   format,
   isSameMonth,
 } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { estAujourdhui } from '@/lib/dateUtils';
-import Card from './ui/Card';
+import { Card, CardContent } from './ui/card';
 import type { Collecte, JourFerie } from '@/types/collecte';
 
 interface CalendrierMensuelProps {
@@ -38,8 +37,6 @@ export default function CalendrierMensuel({
     start: debutCalendrier,
     end: finCalendrier,
   });
-
-  const nomMois = format(date, 'MMMM yyyy', { locale: fr });
 
   const getCollecteForDate = (dateJour: Date) => {
     return collectes.find(
@@ -86,69 +83,67 @@ export default function CalendrierMensuel({
   };
 
   return (
-    <Card>
-      <h2 className="text-2xl font-semibold mb-4 capitalize text-center">
-        {nomMois}
-      </h2>
-
-      {/* En-têtes des jours de la semaine */}
-      <div className="grid grid-cols-7 gap-2 mb-2">
-        {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(jour => (
-          <div
-            key={jour}
-            className="text-center text-sm font-semibold text-gray-600 py-2"
-          >
-            {jour}
-          </div>
-        ))}
-      </div>
-
-      {/* Grille du calendrier */}
-      <div className="grid grid-cols-7 gap-2">
-        {jours.map((jour, index) => {
-          const collecte = getCollecteForDate(jour);
-          const ferie = getFerieForDate(jour);
-          const isToday = estAujourdhui(jour);
-          const isCurrentMonth = isSameMonth(jour, date);
-          const icon = getCollecteIcon(collecte);
-
-          return (
+    <Card className="mb-6">
+      <CardContent className="pt-6">
+        {/* En-têtes des jours de la semaine */}
+        <div className="grid grid-cols-7 gap-2 mb-3">
+          {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(jour => (
             <div
-              key={index}
-              className={`
-                min-h-[80px] p-2 rounded-lg border transition-all
-                ${getBackgroundColor(collecte)}
-                ${isToday ? 'border-blue-500 border-2' : 'border-gray-200'}
-                ${!isCurrentMonth ? 'opacity-40' : ''}
-                ${collecte ? 'shadow-sm' : ''}
-              `}
+              key={jour}
+              className="text-center text-sm font-semibold text-muted-foreground py-2"
             >
-              <div className="flex flex-col h-full">
-                <div
-                  className={`text-sm font-medium ${
-                    isToday ? 'text-blue-700' : 'text-gray-700'
-                  }`}
-                >
-                  {format(jour, 'd')}
-                </div>
-
-                {icon && (
-                  <div className="text-xl mt-1 text-center">{icon}</div>
-                )}
-
-                {ferie && (
-                  <div
-                    className="text-xs text-red-600 mt-auto font-medium truncate"
-                    title={ferie.nom}
-                  >
-                    {ferie.nom}
-                  </div>
-                )}
-              </div>
+              {jour}
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+
+        {/* Grille du calendrier */}
+        <div className="grid grid-cols-7 gap-2">
+          {jours.map((jour, index) => {
+            const collecte = getCollecteForDate(jour);
+            const ferie = getFerieForDate(jour);
+            const isToday = estAujourdhui(jour);
+            const isCurrentMonth = isSameMonth(jour, date);
+            const icon = getCollecteIcon(collecte);
+
+            return (
+              <div
+                key={index}
+                className={`
+                  min-h-[80px] p-2 rounded-lg border transition-all hover:shadow-md
+                  ${getBackgroundColor(collecte)}
+                  ${isToday ? 'border-primary border-2 ring-2 ring-primary/20' : 'border-border'}
+                  ${!isCurrentMonth ? 'opacity-40' : ''}
+                  ${collecte ? 'shadow-sm' : ''}
+                `}
+              >
+                <div className="flex flex-col h-full">
+                  <div
+                    className={`text-sm font-medium ${
+                      isToday ? 'text-primary font-bold' : 'text-foreground'
+                    }`}
+                  >
+                    {format(jour, 'd')}
+                  </div>
+
+                  {icon && (
+                    <div className="text-xl mt-1 text-center">{icon}</div>
+                  )}
+
+                  {ferie && (
+                    <div
+                      className="text-xs text-red-600 mt-auto font-medium truncate"
+                      title={ferie.nom}
+                    >
+                      {ferie.nom}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
     </Card>
   );
 }

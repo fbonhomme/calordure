@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 export default function Error({
   error,
@@ -27,7 +27,7 @@ export default function Error({
         </p>
 
         <div className="flex flex-col gap-3">
-          <Button onClick={reset} variant="primary">
+          <Button onClick={reset}>
             Réessayer
           </Button>
           <Button

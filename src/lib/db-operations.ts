@@ -25,10 +25,10 @@ export async function getCollectesSemaine(
     },
   });
 
-  const aCollecteJaune = collectes.some((c: any) =>
+  const aCollecteJaune = collectes.some((c: { typeCollecte: string }) =>
     c.typeCollecte.includes('jaune')
   );
-  const aCollecteGrise = collectes.some((c: any) =>
+  const aCollecteGrise = collectes.some((c: { typeCollecte: string }) =>
     c.typeCollecte.includes('gris')
   );
 

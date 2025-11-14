@@ -1,6 +1,6 @@
 import React from 'react';
-import Card from './ui/Card';
-import Badge from './ui/Badge';
+import { Card, CardContent } from './ui/card';
+import { Badge } from './ui/badge';
 import type { Collecte } from '@/types/collecte';
 
 interface AlerteCollecteProps {
@@ -46,24 +46,26 @@ export default function AlerteCollecte({
 
   return (
     <Card className="mb-6">
-      <div className="flex items-center gap-3">
-        <span className="text-3xl">{message.icon}</span>
-        <div className="flex-1">
-          <Badge variant={message.variant} className="text-base">
-            {message.text}
-          </Badge>
+      <CardContent className="pt-6">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">{message.icon}</span>
+          <div className="flex-1">
+            <Badge variant={message.variant} className="text-base px-4 py-2">
+              {message.text}
+            </Badge>
+          </div>
         </div>
-      </div>
 
-      {collectes.length > 0 && (
-        <div className="mt-4 text-sm text-gray-600">
-          <p>
-            {collectes.length === 1
-              ? '1 collecte prévue'
-              : `${collectes.length} collectes prévues`}
-          </p>
-        </div>
-      )}
+        {collectes.length > 0 && (
+          <div className="mt-4 text-sm text-muted-foreground">
+            <p>
+              {collectes.length === 1
+                ? '1 collecte prévue'
+                : `${collectes.length} collectes prévues`}
+            </p>
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 }
