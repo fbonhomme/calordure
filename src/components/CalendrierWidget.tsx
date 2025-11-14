@@ -1,7 +1,7 @@
 import React from 'react';
 import { eachDayOfInterval } from 'date-fns';
 import JourCollecte from './JourCollecte';
-import Card from './ui/Card';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import type { Collecte } from '@/types/collecte';
 
 interface CalendrierWidgetProps {
@@ -27,17 +27,23 @@ export default function CalendrierWidget({
   };
 
   return (
-    <Card>
-      <h2 className="text-xl font-semibold mb-4">Semaine en cours</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
-        {jours.map((jour, index) => (
-          <JourCollecte
-            key={index}
-            date={jour}
-            collecte={getCollecteForDate(jour)}
-          />
-        ))}
-      </div>
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          📆 Semaine en cours
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
+          {jours.map((jour, index) => (
+            <JourCollecte
+              key={index}
+              date={jour}
+              collecte={getCollecteForDate(jour)}
+            />
+          ))}
+        </div>
+      </CardContent>
     </Card>
   );
 }

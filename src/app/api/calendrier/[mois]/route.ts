@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { getCollectesMois, getJoursFeries } from '@/lib/db-operations';
-import { getMoisActuel } from '@/lib/dateUtils';
 
 export const revalidate = 3600; // ISR: revalider toutes les heures
 
@@ -25,7 +24,6 @@ export async function GET(
 
     // Pour l'instant, on ne supporte que 2025
     const annee = 2025;
-    const { annee: anneeActuelle } = getMoisActuel();
 
     // Validation de l'année (seulement 2025 pour l'instant)
     if (annee !== 2025) {

@@ -2,8 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import CalendrierMensuel from '@/components/CalendrierMensuel';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import Legende from '@/components/Legende';
+import Header from '@/components/Header';
 import type { Collecte, JourFerie } from '@/types/collecte';
 
 const MOIS_NOMS = [
@@ -45,12 +49,12 @@ export default function CalendrierPage() {
         const data = await response.json();
 
         // Convertir les dates ISO en objets Date
-        const collectesAvecDates = data.collectes.map((c: any) => ({
+        const collectesAvecDates = data.collectes.map((c: { date: string; id: number; typeCollecte: string }) => ({
           ...c,
           date: new Date(c.date),
         }));
 
-        const feriesAvecDates = data.joursFeries.map((f: any) => ({
+        const feriesAvecDates = data.joursFeries.map((f: { date: string; id: number; nom: string }) => ({
           ...f,
           date: new Date(f.date),
         }));
@@ -77,72 +81,91 @@ export default function CalendrierPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4 min-w-[320px]">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-blue-50 p-4 md:p-8 min-w-[320px]">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <header className="mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-            📅 Calendrier des Collectes
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Pont-sur-Yonne (Bourg) - 2025
-          </p>
-        </header>
+        <Header currentPage="calendar" />
+
+        {/* Subtitle */}
+        <div className="mb-6 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
+            📅 Calendrier Complet
+          </h2>
+          <p className="text-muted-foreground">Année 2025</p>
+        </div>
 
         {/* Navigation des mois */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <Button
-            onClick={() => changerMois(-1)}
-            disabled={moisActuel === 1}
-            variant="outline"
-            size="sm"
-          >
-            ← Mois précédent
-          </Button>
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <Button
+                onClick={() => changerMois(-1)}
+                disabled={moisActuel === 1}
+                variant="outline"
+                size="sm"
+              >
+                ← Précédent
+              </Button>
 
-          <div className="text-xl font-semibold text-gray-800 min-w-[150px] text-center">
-            {MOIS_NOMS[moisActuel - 1]}
-          </div>
+              <Badge variant="default" className="text-lg px-6 py-2 min-w-[140px] justify-center">
+                {MOIS_NOMS[moisActuel - 1]}
+              </Badge>
 
-          <Button
-            onClick={() => changerMois(1)}
-            disabled={moisActuel === 12}
-            variant="outline"
-            size="sm"
-          >
-            Mois suivant →
-          </Button>
-        </div>
+              <Button
+                onClick={() => changerMois(1)}
+                disabled={moisActuel === 12}
+                variant="outline"
+                size="sm"
+              >
+                Suivant →
+              </Button>
+            </div>
 
-        {/* Sélecteur rapide de mois */}
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
-          {MOIS_NOMS.map((nom, index) => (
-            <button
-              key={index}
-              onClick={() => setMoisActuel(index + 1)}
-              className={`px-3 py-1 rounded-md text-sm transition-colors ${
-                moisActuel === index + 1
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              {nom}
-            </button>
-          ))}
-        </div>
+            <Separator className="my-4" />
+
+            {/* Sélecteur rapide de mois */}
+            <div className="flex flex-wrap justify-center gap-2">
+              {MOIS_NOMS.map((nom, index) => (
+                <Button
+                  key={index}
+                  onClick={() => setMoisActuel(index + 1)}
+                  variant={moisActuel === index + 1 ? "default" : "outline"}
+                  size="sm"
+                  className="min-w-[80px]"
+                >
+                  {nom}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Error message */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-            <p className="font-medium">{error}</p>
-          </div>
+          <Card className="mb-6 border-destructive">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <p className="font-semibold text-destructive">{error}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Veuillez réessayer plus tard.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Loading state */}
         {loading && (
-          <div className="text-center py-12">
-            <p className="text-gray-600">Chargement du calendrier...</p>
-          </div>
+          <Card>
+            <CardContent className="py-12 text-center">
+              <div className="flex flex-col items-center gap-3">
+                <div className="text-4xl animate-pulse">📅</div>
+                <p className="text-muted-foreground">Chargement du calendrier...</p>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Calendrier */}
@@ -160,16 +183,12 @@ export default function CalendrierPage() {
         )}
 
         {/* Footer */}
-        <footer className="mt-8 text-center text-gray-600 text-sm">
-          <p>
-            <a
-              href="/"
-              className="text-blue-600 hover:text-blue-800 underline"
-            >
-              ← Retour à l&apos;accueil
-            </a>
+        <Separator className="my-8" />
+        <footer className="text-center text-muted-foreground text-sm pb-4">
+          <p className="font-medium">Communauté de Communes Yonne Nord</p>
+          <p className="mt-2 text-xs">
+            Calendrier des collectes 2025
           </p>
-          <p className="mt-2">Communauté de Communes Yonne Nord</p>
         </footer>
       </div>
     </main>
