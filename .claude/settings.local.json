@@ -17,7 +17,9 @@
       "Bash(git restore:*)",
       "Bash(gh run watch:*)",
       "Bash(curl:*)",
-      "Bash(az --version:*)"
+      "Bash(az --version:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma generate:*)"
     ],
     "deny": [],
     "ask": []

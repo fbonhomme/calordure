@@ -32,6 +32,7 @@ jobs:
           api_location: "api" # Azure Functions API source code path
           output_location: "out" # Built app content directory (Next.js export creates 'out' folder)
           app_build_command: "npm run build"
+          api_build_command: "npx prisma generate --schema=./prisma/schema.prisma"
           ###### End of Repository/Build Configurations ######
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
