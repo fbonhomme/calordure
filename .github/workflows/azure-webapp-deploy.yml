@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: ordures-menage-app # Remplacer par le nom de votre Azure Web App
+  AZURE_WEBAPP_NAME: calendrierordure # Remplacer par le nom de votre Azure Web App
   NODE_VERSION: '20.x'
 
 jobs:
