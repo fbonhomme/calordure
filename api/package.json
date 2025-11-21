@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "Azure Functions API for orduresMenage",
   "main": "index.js",
+  "scripts": {
+    "postinstall": "prisma generate"
+  },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "date-fns": "^4.1.0"
-  },
-  "devDependencies": {
+    "date-fns": "^4.1.0",
     "prisma": "^5.22.0"
   }
 }
