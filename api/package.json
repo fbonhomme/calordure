@@ -4,11 +4,14 @@
   "description": "Azure Functions API for orduresMenage",
   "main": "index.js",
   "scripts": {
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "date-fns": "^4.1.0",
     "prisma": "^5.22.0"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   }
 }
