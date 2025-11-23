@@ -38,8 +38,13 @@ Allez dans votre dépôt GitHub → **Settings** → **Secrets and variables** �
 
 2. **DATABASE_URL** (à ajouter si manquant)
    - Nom : `DATABASE_URL`
-   - Valeur : `mysql://admingest:{VOTRE_MOT_DE_PASSE}@gestordure.mysql.database.azure.com:3306/ordures_menage?sslmode=require`
+   - Valeur : `mysql://admingest:{VOTRE_MOT_DE_PASSE}@gestordure.mysql.database.azure.com:3306/ordures_menage?ssl-mode=REQUIRED`
    - ⚠️ Remplacez `{VOTRE_MOT_DE_PASSE}` par votre mot de passe réel
+   - ⚠️ **Important** : Encodez les caractères spéciaux en URL :
+     - `@` → `%40`
+     - `*` → `%2A`
+     - `#` → `%23`
+     - Exemple : `CiTy@89*2025` devient `CiTy%4089%2A2025`
 
 ## Étape 2 : Configurer les variables d'environnement dans Azure
 
@@ -52,9 +57,11 @@ Allez dans votre dépôt GitHub → **Settings** → **Secrets and variables** �
 
 | Nom | Valeur |
 |-----|--------|
-| `DATABASE_URL` | `mysql://admingest:{VOTRE_MOT_DE_PASSE}@gestordure.mysql.database.azure.com:3306/ordures_menage?sslmode=require` |
+| `DATABASE_URL` | `mysql://admingest:{VOTRE_MOT_DE_PASSE_ENCODÉ}@gestordure.mysql.database.azure.com:3306/ordures_menage?ssl-mode=REQUIRED` |
 | `NODE_ENV` | `production` |
 | `TZ` | `Europe/Paris` |
+
+⚠️ **Important** : Encodez tous les caractères spéciaux du mot de passe en URL (`@` → `%40`, `*` → `%2A`, etc.)
 
 5. Cliquez sur **Save** pour enregistrer
 
@@ -68,7 +75,7 @@ az login
 az staticwebapp appsettings set \
   --name calendrierordure \
   --setting-names \
-    DATABASE_URL="mysql://admingest:{VOTRE_MOT_DE_PASSE}@gestordure.mysql.database.azure.com:3306/ordures_menage?sslmode=require" \
+    DATABASE_URL="mysql://admingest:{VOTRE_MOT_DE_PASSE_ENCODÉ}@gestordure.mysql.database.azure.com:3306/ordures_menage?ssl-mode=REQUIRED" \
     NODE_ENV="production" \
     TZ="Europe/Paris"
 ```
@@ -81,7 +88,7 @@ Avant le premier déploiement, initialisez votre base de données MySQL Azure :
 
 1. **Créer un fichier .env.production** :
    ```env
-   DATABASE_URL="mysql://admingest:{VOTRE_MOT_DE_PASSE}@gestordure.mysql.database.azure.com:3306/ordures_menage?sslmode=require"
+   DATABASE_URL="mysql://admingest:{VOTRE_MOT_DE_PASSE_ENCODÉ}@gestordure.mysql.database.azure.com:3306/ordures_menage?ssl-mode=REQUIRED"
    ```
 
 2. **Installer les dépendances** :
@@ -224,7 +231,8 @@ Le fichier `staticwebapp.config.json` configure :
 
 1. **Vérifier la variable DATABASE_URL** :
    - Dans le portail Azure → Static Web App → Configuration
-   - Format : `mysql://admingest:PASSWORD@gestordure.mysql.database.azure.com:3306/ordures_menage?sslmode=require`
+   - Format : `mysql://admingest:PASSWORD_ENCODÉ@gestordure.mysql.database.azure.com:3306/ordures_menage?ssl-mode=REQUIRED`
+   - ⚠️ Encodez les caractères spéciaux du mot de passe : `@` → `%40`, `*` → `%2A`
 
 2. **Vérifier les règles de pare-feu MySQL** :
    - Portail Azure → Serveur MySQL → Networking
@@ -251,8 +259,12 @@ Le fichier `staticwebapp.config.json` configure :
 
 2. **Vérifier le format SSL dans DATABASE_URL** :
    ```
-   ?sslmode=require
+   ?ssl-mode=REQUIRED
    ```
+
+3. **Vérifier l'encodage URL du mot de passe** :
+   - Tous les caractères spéciaux doivent être encodés
+   - Exemple : `CiTy@89*2025` → `CiTy%4089%2A2025`
 
 ### Le build échoue
 

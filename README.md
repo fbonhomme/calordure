@@ -2,6 +2,11 @@
 
 Application web pour afficher le calendrier de collecte des poubelles à Pont-sur-Yonne (Bourg).
 
+**Architecture trois tiers** pour déploiement Azure :
+- **Frontend** → Azure Static Web Apps
+- **Backend** → Azure App Service
+- **Database** → Azure MySQL
+
 ## 📋 Fonctionnalités
 
 - **Affichage hebdomadaire** : Vue de la semaine en cours avec alertes pour les collectes
@@ -10,6 +15,34 @@ Application web pour afficher le calendrier de collecte des poubelles à Pont-su
 - **Responsive** : Fonctionne sur mobile, tablette et desktop
 - **Jours fériés** : Affichage des jours fériés français
 
+## 📁 Structure du projet
+
+```
+orduresMenage/
+├── backend/                    # API REST (Azure App Service)
+│   ├── src/
+│   │   ├── controllers/       # Contrôleurs HTTP
+│   │   ├── services/          # Logique métier & accès données
+│   │   ├── routes/            # Routes Express
+│   │   ├── middleware/        # Middleware (erreurs, etc.)
+│   │   ├── lib/               # Utilitaires (Prisma, dates)
+│   │   └── types/             # Types TypeScript
+│   ├── prisma/                # Schema Prisma
+│   └── package.json
+│
+├── frontend/                   # Interface Web (Azure Static Web Apps)
+│   ├── src/
+│   │   ├── app/               # Pages Next.js (App Router)
+│   │   ├── components/        # Composants React
+│   │   ├── lib/               # API client, utilitaires
+│   │   └── types/             # Types TypeScript
+│   └── package.json
+│
+├── prisma/                    # Schema Prisma (référence legacy)
+├── .github/workflows/         # CI/CD GitHub Actions
+└── src/                       # Code legacy (à supprimer)
+```
+
 ## 🚀 Démarrage rapide
 
 ### Prérequis
@@ -17,127 +50,107 @@ Application web pour afficher le calendrier de collecte des poubelles à Pont-su
 - Node.js 20+
 - MySQL 8.0+
 
-### Installation
+### Installation Backend
 
-1. **Cloner le projet**
-   ```bash
-   git clone <repo-url>
-   cd calordure
-   ```
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Éditer .env avec DATABASE_URL
 
-2. **Installer les dépendances**
-   ```bash
-   npm install
-   ```
-
-3. **Configurer l'environnement**
-
-   Copier `.env.example` vers `.env.local` et configurer :
-   ```env
-   DATABASE_URL="mysql://user:password@localhost:3306/ordures_menage"
-   NODE_ENV="development"
-   TZ="Europe/Paris"
-   ```
-
-4. **Créer la base de données**
-   ```sql
-   CREATE DATABASE ordures_menage CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   ```
-
-5. **Exécuter les migrations Prisma**
-   ```bash
-   npx prisma migrate dev --name init
-   npx prisma generate
-   ```
-
-6. **Peupler la base de données**
-   ```bash
-   npm run seed
-   ```
-
-7. **Lancer le serveur de développement**
-   ```bash
-   npm run dev
-   ```
-
-8. **Ouvrir l'application**
-
-   Naviguer vers [http://localhost:3000](http://localhost:3000)
-
-## 🛠️ Scripts disponibles
-
-- `npm run dev` - Démarrer le serveur de développement
-- `npm run build` - Construire pour la production
-- `npm start` - Démarrer le serveur de production
-- `npm run lint` - Exécuter ESLint
-- `npm run type-check` - Vérifier les types TypeScript
-- `npm run seed` - Peupler la base de données
-
-## 📁 Structure du projet
-
+npm run prisma:generate
+npm run prisma:migrate
+npm run dev
 ```
-calordure/
-├── prisma/
-│   ├── schema.prisma      # Schéma de base de données
-│   └── seed.ts            # Script de peuplement
-├── src/
-│   ├── app/
-│   │   ├── api/           # Routes API
-│   │   ├── calendrier/    # Page calendrier mensuel
-│   │   ├── layout.tsx     # Layout racine
-│   │   └── page.tsx       # Page d'accueil
-│   ├── components/
-│   │   ├── ui/            # Composants UI réutilisables
-│   │   ├── AlerteCollecte.tsx
-│   │   ├── CalendrierMensuel.tsx
-│   │   ├── CalendrierWidget.tsx
-│   │   ├── JourCollecte.tsx
-│   │   └── Legende.tsx
-│   ├── lib/
-│   │   ├── collecteData.ts     # Données 2025
-│   │   ├── dateUtils.ts        # Utilitaires de date
-│   │   ├── db-operations.ts    # Opérations DB
-│   │   └── prisma.ts           # Client Prisma
-│   └── types/
-│       └── collecte.ts         # Types TypeScript
-├── public/
-│   └── icons/             # Icônes SVG
-├── .env.local             # Variables d'environnement
-├── next.config.ts         # Configuration Next.js
-├── tailwind.config.ts     # Configuration Tailwind
-└── tsconfig.json          # Configuration TypeScript
+
+Le backend démarre sur http://localhost:3001
+
+### Installation Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+# Éditer .env avec NEXT_PUBLIC_API_URL=http://localhost:3001
+
+npm run dev
 ```
+
+Le frontend démarre sur http://localhost:3000
 
 ## 🎨 Technologies
 
-- **Framework** : Next.js 15+ (App Router)
+### Backend
+- **Runtime** : Node.js 20+ avec Express.js
 - **Language** : TypeScript 5.x
-- **UI** : React 19, Tailwind CSS
-- **Base de données** : MySQL 8.0 + Prisma ORM
-- **Dates** : date-fns avec locale française
+- **ORM** : Prisma (MySQL)
+- **Dates** : date-fns
+
+### Frontend
+- **Framework** : Next.js 15 (App Router, export statique)
+- **UI** : React 19, Tailwind CSS, shadcn/ui
+- **Language** : TypeScript 5.x
+- **Dates** : date-fns (locale française)
+
+## 🔌 API Endpoints
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/api/semaine` | Collectes de la semaine en cours |
+| GET | `/api/calendrier/:mois` | Collectes d'un mois (1-12) |
+| GET | `/api/jours-feries/:annee` | Jours fériés d'une année |
+| GET | `/api/collecte/:date` | Collecte pour une date |
+| GET | `/api/prochaine-collecte` | Prochaine collecte |
+| GET | `/health` | Health check |
+
+## 🛠️ Scripts
+
+### Backend
+```bash
+npm run dev          # Développement
+npm run build        # Build production
+npm run start        # Production
+npm run prisma:generate  # Générer client Prisma
+npm run prisma:migrate   # Appliquer migrations
+```
+
+### Frontend
+```bash
+npm run dev          # Développement
+npm run build        # Build statique (out/)
+npm run lint         # Linting ESLint
+npm run type-check   # Vérification TypeScript
+```
+
+## 🚀 Déploiement Azure
+
+### Services Azure
+
+| Composant | Service Azure | Configuration |
+|-----------|---------------|---------------|
+| Frontend | Static Web Apps | Export Next.js statique |
+| Backend | App Service | Node.js 20 LTS |
+| Database | Azure MySQL | MySQL 8.0 |
+
+### GitHub Actions
+
+Les workflows CI/CD sont dans `.github/workflows/`:
+- `azure-backend.yml` - Déploie sur App Service
+- `azure-frontend.yml` - Déploie sur Static Web Apps
+
+### Secrets GitHub requis
+
+- `AZURE_WEBAPP_PUBLISH_PROFILE_BACKEND`
+- `AZURE_STATIC_WEB_APPS_API_TOKEN`
+- `BACKEND_API_URL`
 
 ## 📅 Données 2025
-
-L'application contient les données de collecte pour l'année 2025 :
 
 - **Bac jaune** (🟡) : Emballages + Journaux/Papiers (nouveauté 2025)
 - **Bac gris** (⚫) : Ordures ménagères
 
 ### Rappel important
 Depuis le 1er janvier 2025, les journaux et papiers vont dans le **bac jaune** !
-
-## 🚀 Déploiement
-
-### Build de production
-
-```bash
-npm run build
-npm start
-```
-
-### Docker (optionnel)
-
-Le projet est configuré avec `output: 'standalone'` dans `next.config.ts` pour faciliter le déploiement Docker.
 
 ## 📊 Disponibilité
 
@@ -150,10 +163,6 @@ Ce projet est développé pour la Communauté de Communes Yonne Nord.
 ## 📝 Licence
 
 Propriétaire - Communauté de Communes Yonne Nord
-
-## 📞 Contact
-
-Pour les mises à jour du calendrier ou les questions, contactez la mairie de Pont-sur-Yonne.
 
 ---
 

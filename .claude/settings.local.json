@@ -19,7 +19,13 @@
       "Bash(curl:*)",
       "Bash(az --version:*)",
       "Bash(npm install:*)",
-      "Bash(npx prisma generate:*)"
+      "Bash(npx prisma generate:*)",
+      "Bash(tree:*)",
+      "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && head -20 {}')",
+      "mcp__MCP_DOCKER__resolve-library-id",
+      "mcp__MCP_DOCKER__get-library-docs",
+      "Bash(nul)",
+      "Bash(dir /s /b)"
     ],
     "deny": [],
     "ask": []
