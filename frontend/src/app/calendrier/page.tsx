@@ -92,19 +92,21 @@ export default function CalendrierPage() {
         {/* Month navigation */}
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="flex items-center justify-center gap-2 md:gap-4 mb-4">
               <Button
                 onClick={() => changerMois(-1)}
                 disabled={moisActuel === 1 || isTransitioning}
                 variant="outline"
                 size="sm"
+                className="flex-shrink-0"
               >
-                ← Précédent
+                <span className="hidden sm:inline">← Précédent</span>
+                <span className="sm:hidden">←</span>
               </Button>
 
               <Badge
                 variant="default"
-                className={`text-lg px-6 py-2 min-w-[140px] justify-center transition-transform ${
+                className={`text-base md:text-lg px-3 md:px-6 py-2 min-w-[100px] md:min-w-[140px] justify-center transition-transform ${
                   isTransitioning ? 'scale-95' : 'scale-100'
                 }`}
               >
@@ -116,8 +118,10 @@ export default function CalendrierPage() {
                 disabled={moisActuel === 12 || isTransitioning}
                 variant="outline"
                 size="sm"
+                className="flex-shrink-0"
               >
-                Suivant →
+                <span className="hidden sm:inline">Suivant →</span>
+                <span className="sm:hidden">→</span>
               </Button>
             </div>
 
