@@ -91,7 +91,7 @@ export default function Home() {
         <footer className="text-center text-muted-foreground text-sm pb-4">
           <p className="font-medium">Communauté de Communes Yonne Nord</p>
           <p className="mt-2 text-xs">
-            Calendrier des collectes 2025
+            Calendrier des collectes {new Date().getFullYear()}
           </p>
         </footer>
       </div>
