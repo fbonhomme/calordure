@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import Legende from '@/components/Legende';
 import Header from '@/components/Header';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import type { Collecte, JourFerie } from '@/types/collecte';
 
 const MOIS_NOMS = [
@@ -33,6 +34,7 @@ export default function CalendrierPage() {
   const [joursFeries, setJoursFeries] = useState<JourFerie[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchCalendrier() {
@@ -57,10 +59,19 @@ export default function CalendrierPage() {
 
   const changerMois = (delta: number) => {
     const nouveauMois = moisActuel + delta;
-    if (nouveauMois >= 1 && nouveauMois <= 12) {
+    if (nouveauMois >= 1 && nouveauMois <= 12 && !isTransitioning) {
+      setIsTransitioning(true);
       setMoisActuel(nouveauMois);
+      setTimeout(() => setIsTransitioning(false), 300);
     }
   };
+
+  // Swipe navigation handlers
+  const swipeHandlers = useSwipeNavigation({
+    onSwipeLeft: () => changerMois(1), // Swipe left = next month
+    onSwipeRight: () => changerMois(-1), // Swipe right = previous month
+    enabled: !loading && !error,
+  });
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-blue-50 p-4 md:p-8 min-w-[320px]">
@@ -73,6 +84,9 @@ export default function CalendrierPage() {
             📅 Calendrier Complet
           </h2>
           <p className="text-muted-foreground">Année {annee}</p>
+          <p className="text-xs text-muted-foreground mt-2 md:hidden">
+            👈 Glissez pour naviguer 👉
+          </p>
         </div>
 
         {/* Month navigation */}
@@ -81,20 +95,25 @@ export default function CalendrierPage() {
             <div className="flex items-center justify-center gap-4 mb-4">
               <Button
                 onClick={() => changerMois(-1)}
-                disabled={moisActuel === 1}
+                disabled={moisActuel === 1 || isTransitioning}
                 variant="outline"
                 size="sm"
               >
                 ← Précédent
               </Button>
 
-              <Badge variant="default" className="text-lg px-6 py-2 min-w-[140px] justify-center">
+              <Badge
+                variant="default"
+                className={`text-lg px-6 py-2 min-w-[140px] justify-center transition-transform ${
+                  isTransitioning ? 'scale-95' : 'scale-100'
+                }`}
+              >
                 {MOIS_NOMS[moisActuel - 1]}
               </Badge>
 
               <Button
                 onClick={() => changerMois(1)}
-                disabled={moisActuel === 12}
+                disabled={moisActuel === 12 || isTransitioning}
                 variant="outline"
                 size="sm"
               >
@@ -105,14 +124,14 @@ export default function CalendrierPage() {
             <Separator className="my-4" />
 
             {/* Quick month selector */}
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-1.5 md:gap-2">
               {MOIS_NOMS.map((nom, index) => (
                 <Button
                   key={index}
                   onClick={() => setMoisActuel(index + 1)}
                   variant={moisActuel === index + 1 ? "default" : "outline"}
                   size="sm"
-                  className="min-w-[80px]"
+                  className="min-w-[70px] md:min-w-[80px] text-xs md:text-sm"
                 >
                   {nom}
                 </Button>
@@ -152,16 +171,22 @@ export default function CalendrierPage() {
 
         {/* Calendar */}
         {!loading && !error && (
-          <>
-            <CalendrierMensuel
-              annee={annee}
-              mois={moisActuel}
-              collectes={collectes}
-              joursFeries={joursFeries}
-            />
+          <div {...swipeHandlers} className="touch-pan-y">
+            <div
+              className={`transition-opacity duration-300 ${
+                isTransitioning ? 'opacity-50' : 'opacity-100'
+              }`}
+            >
+              <CalendrierMensuel
+                annee={annee}
+                mois={moisActuel}
+                collectes={collectes}
+                joursFeries={joursFeries}
+              />
+            </div>
 
             <Legende />
-          </>
+          </div>
         )}
 
         {/* Footer */}

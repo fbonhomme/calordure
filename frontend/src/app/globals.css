@@ -71,4 +71,17 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Touch gesture optimization */
+  .touch-pan-y {
+    touch-action: pan-y pinch-zoom;
+  }
+
+  @media (max-width: 768px) {
+    .touch-pan-y {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
 }

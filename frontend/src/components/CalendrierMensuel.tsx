@@ -86,19 +86,22 @@ export default function CalendrierMensuel({
     <Card className="mb-6">
       <CardContent className="pt-6">
         {/* Day headers */}
-        <div className="grid grid-cols-7 gap-2 mb-3">
-          {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(jour => (
+        <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 mb-2 md:mb-3">
+          {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((jour, index) => (
             <div
               key={jour}
-              className="text-center text-sm font-semibold text-muted-foreground py-2"
+              className="text-center font-semibold text-muted-foreground py-1 md:py-2"
             >
-              {jour}
+              <span className="block sm:hidden text-xs">
+                {['L', 'M', 'M', 'J', 'V', 'S', 'D'][index]}
+              </span>
+              <span className="hidden sm:block text-xs sm:text-sm">{jour}</span>
             </div>
           ))}
         </div>
 
         {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2">
           {jours.map((jour, index) => {
             const collecte = getCollecteForDate(jour);
             const ferie = getFerieForDate(jour);
@@ -110,7 +113,10 @@ export default function CalendrierMensuel({
               <div
                 key={index}
                 className={`
-                  min-h-[80px] p-2 rounded-lg border transition-all hover:shadow-md
+                  min-h-[60px] sm:min-h-[70px] md:min-h-[80px]
+                  p-1 sm:p-1.5 md:p-2
+                  rounded-md md:rounded-lg
+                  border transition-all hover:shadow-md active:scale-95
                   ${getBackgroundColor(collecte)}
                   ${isToday ? 'border-primary border-2 ring-2 ring-primary/20' : 'border-border'}
                   ${!isCurrentMonth ? 'opacity-40' : ''}
@@ -119,7 +125,7 @@ export default function CalendrierMensuel({
               >
                 <div className="flex flex-col h-full">
                   <div
-                    className={`text-sm font-medium ${
+                    className={`text-xs sm:text-sm font-medium ${
                       isToday ? 'text-primary font-bold' : 'text-foreground'
                     }`}
                   >
@@ -127,12 +133,12 @@ export default function CalendrierMensuel({
                   </div>
 
                   {icon && (
-                    <div className="text-xl mt-1 text-center">{icon}</div>
+                    <div className="text-base sm:text-lg md:text-xl mt-0.5 md:mt-1 text-center">{icon}</div>
                   )}
 
                   {ferie && (
                     <div
-                      className="text-xs text-red-600 mt-auto font-medium truncate"
+                      className="text-[10px] sm:text-xs text-red-600 mt-auto font-medium truncate"
                       title={ferie.nom}
                     >
                       {ferie.nom}
