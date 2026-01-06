@@ -10,7 +10,8 @@
     "lint": "eslint src/**/*.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed:2026": "tsx scripts/seed-2026.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
