@@ -28,7 +28,7 @@ const MOIS_NOMS = [
 
 export default function CalendrierPage() {
   const [moisActuel, setMoisActuel] = useState<number>(new Date().getMonth() + 1);
-  const [annee] = useState<number>(2025);
+  const [annee] = useState<number>(new Date().getFullYear());
   const [collectes, setCollectes] = useState<Collecte[]>([]);
   const [joursFeries, setJoursFeries] = useState<JourFerie[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -72,7 +72,7 @@ export default function CalendrierPage() {
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
             📅 Calendrier Complet
           </h2>
-          <p className="text-muted-foreground">Année 2025</p>
+          <p className="text-muted-foreground">Année {annee}</p>
         </div>
 
         {/* Month navigation */}
@@ -169,7 +169,7 @@ export default function CalendrierPage() {
         <footer className="text-center text-muted-foreground text-sm pb-4">
           <p className="font-medium">Communauté de Communes Yonne Nord</p>
           <p className="mt-2 text-xs">
-            Calendrier des collectes 2025
+            Calendrier des collectes {annee}
           </p>
         </footer>
       </div>

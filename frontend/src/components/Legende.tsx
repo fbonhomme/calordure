@@ -35,17 +35,17 @@ export default function Legende() {
 
         <Separator className="my-4" />
 
-        {/* 2025 reminder */}
+        {/* Important reminder */}
         <div className="p-4 bg-blue-50 border-l-4 border-primary rounded-r-lg">
           <div className="flex items-start gap-3">
             <span className="text-2xl">💡</span>
             <div>
               <h3 className="font-semibold text-primary mb-1">
-                Rappel important : Nouveauté 2025
+                Rappel important
               </h3>
               <p className="text-sm text-blue-700">
-                Depuis le 1er janvier 2025, les journaux et papiers vont dans le{' '}
-                <strong>bac jaune</strong> !
+                Les journaux et papiers vont dans le{' '}
+                <strong>bac jaune</strong> (depuis le 1er janvier 2025).
               </p>
             </div>
           </div>
